@@ -12,3 +12,5 @@ from rest_framework.decorators import api_view
 -- use serializers and product_models in data function
 in views.py
 data=ProductSerializers(instance).data
+
+tap error >> chang tap
