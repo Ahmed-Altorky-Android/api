@@ -10,8 +10,11 @@ from django.forms.models import model_to_dict
 #@api_view(["GET"])
 @api_view(["POST"])
 def api_home(request, *args, **kwargs):
-    data = request.data
-    return Response(data)
+    serializer = ProductSerializers(data=request.data)
+    if serializer.is_valid():
+      print(serializer.data)
+      data=serializer.data
+      return Response(data)
 
 
 """
