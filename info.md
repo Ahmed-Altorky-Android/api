@@ -50,7 +50,7 @@ tap error >> chang tap
 -- in product/urla.py
 
 from django.urls import path
-# استعاء القيمه من الفيو
+# استدعاء القيمه من الفيو
 from .views import product_detail_view, product_create_view
 
 urlpatterns = [
@@ -100,6 +100,48 @@ import requests
 endpoint = "http://127.0.0.1:8000/api/products/"
 
 # لعرض محتويات الرابط
+# هنا استخدمنا الجين فسوف تاتي باكل المنتجات
 get_responce = requests.get(endpoint) »» لعرض المنتجات
 
 print(get_responce.json())
+
+-- in views.py 
+	from rest_framework.response import Response
+	from rest_framework.decorators import api_view
+	from django.shortcuts import get_object_or_404
+
+	@api_view(['GET','POST']) >> use api get and post in function
+	def product_alt_view(request, pk=None, *args, **kwargs):
+	method = request.method >> variable
+	if method == "GET":
+		if pk is not None: >> لو الاي دي موجود
+			# detai view
+			obj = get_object_or_404(Product, pk=pk) >> جلب المنتج من المودل والاي دي يساوي الايدي
+			data = ProductSerializers(obj, many=False).data >>
+			ملف الابياي نستخدم فيه المتغير اوبج جعل لا يوجد اكثر من منتج وبعد ذالك جلب البيانات
+			return Response(data)
+			#url > api/products/pk/ >> وهذا يجب وضع رقم المنتج فيه
+		# list view
+		# show all list view
+		queryset = Product.objects.all()
+		data = ProductSerializers(queryset, many=True).data >> العديد يوجد 
+		return Response(data)
+	if method == "POST":
+		#create a product >> انشاء منتج لو بوست
+		serializer = ProductSerializers(data=request.data)
+		if serializer.is_valid():
+			title = serializer.validated_data.get('title')
+			content = serializer.validated_data.get('content') >> هذه محتويات المنتج المنشأ
+			if content is None:
+				content = title
+			serializer.save(content=content)
+			return Response(serializer.data)
+-- in urls 
+	from django.urls import path
+	from . import views
+
+	urlpatterns = [
+		path('', views.product_alt_view),
+		#path('', product_create_view),
+		path('<int:pk>/', views.product_alt_view),
+	]
