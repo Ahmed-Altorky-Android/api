@@ -73,3 +73,33 @@ urlpatterns = [
 	get_responce = requests.post(endpoint, json=data)
 
 	print(get_responce.json())
+------------------------------------
+
+# تحويل الانشاء الي ليسته عرض المنتجات 
+-- in product/views.py
+# لعرض الليست اذا كان جيت ويتم انشاء منتج اذا استخدمنا البوست
+class ProductListCreateAPIView(generics.ListCreateAPIView):
+   queryset = Product.objects.all()
+   serializer_class = ProductSerializers
+
+   def perform_create(self, serializer):
+      #print(serializer.validated_data)
+      title = serializer.validated_data.get('title')
+      content = serializer.validated_data.get('content')
+      if content is None:
+         content = title
+      serializer.save(content=content)
+
+product_list_create_view = ProductListCreateAPIView.as_view()
+
+
+-- mkdir py_clint/list.py
+
+import requests
+# use this page in product/views.py
+endpoint = "http://127.0.0.1:8000/api/products/"
+
+# لعرض محتويات الرابط
+get_responce = requests.get(endpoint) »» لعرض المنتجات
+
+print(get_responce.json())
