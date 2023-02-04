@@ -1,6 +1,6 @@
 in views.py
 
-'new massage2'
+'new massage3'
 -- replace JsonResponse
 from rest_framework.response import Response
 
