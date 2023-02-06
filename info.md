@@ -146,3 +146,44 @@ print(get_responce.json())
 		#path('', product_create_view),
 		path('<int:pk>/', views.product_alt_view),
 	]
+
+-- error > 'No time zone found with key UTC'
+-- resolve > pip install tzdata
+
+
+-- in views.py 
+
+class ProductUpdateAPIView(generics.UpdateAPIView): - للتعديل علي المنتجclass ProductUpdateAPIView(generics.UpdateAPIView):
+   # queryset and serializer_class is important value
+   queryset = Product.objects.all()  - جلب جميع المنتجات
+   serializer_class = ProductSerializers  - جلب الدالة 
+   lookup_field = 'pk' - التحديد عن طريق البي كي 
+
+   def perform_update(self, serializer): - داله بها نفسي والدالة
+      instance = serializer.save() - حفظ التعديل
+      if not instance.content: - لو مش موجود 
+         instance.content = instance.title - بدله بده
+
+product_update_view = ProductUpdateAPIView.as_view() - متغير يستخدم في الرابط
+
+-- in urls.py 
+
+path('<int:pk>/update/', views.product_update_view), 
+ - رابط به بي كي المنتج وعمل تعظيل عليه
+
+-- in py_clint create file update.py
+
+import requests
+# use this page in product/views.py
+endpoint = "http://127.0.0.1:8000/api/products/1/update/" - الرابط
+
+data={
+     'title': 'is update product', - المعلومات اللتي سوف يتم التعديل عليها 
+     'price': 20.01
+}
+
+# لعرض محتويات الرابط
+get_responce = requests.put(endpoint, json=data) نستخدم بت بدل جيت 
+-- put - تستخدم اذا كان المنتج موجود وتريد استبدال معلومات فيه 
+بمعلومات اخري مكانها 
+print(get_responce.json())
