@@ -187,3 +187,47 @@ get_responce = requests.put(endpoint, json=data) نستخدم بت بدل جيت
 -- put - تستخدم اذا كان المنتج موجود وتريد استبدال معلومات فيه 
 بمعلومات اخري مكانها 
 print(get_responce.json())
+
+--------------------------------------
+
+-- in product/viewspy
+
+class ProductDestroyAPIView(generics.DestroyAPIView): - دالة حذف المنتجات 
+   # queryset and serializer_class is important value
+   queryset = Product.objects.all()
+   serializer_class = ProductSerializers
+   lookup_field = 'pk'
+
+   def perform_destroy(self, instance):
+      super().perform_destroy(instance) 
+
+product_destroy_view = ProductDestroyAPIView.as_view()
+
+
+-- in urls.py
+
+path('<int:pk>/delete/', views.product_destroy_view), - الرابط يأخذ اي دي المنتج مع الحذف
+
+
+-- in py_clint mkfile delete.py
+
+import requests
+
+product_id = input("What Is ID Products? \n")
+
+try:
+    product_id = int(product_id) - من نو الارقام
+except:
+    product_id = None - جعله لا يساوي شئ
+    print(f'{product_id} Is Not Found') - اذا لم يكن غير موجود
+
+if product_id: لو كتب رقم 
+    # use this page in product/views.py
+    endpoint = f"http://127.0.0.1:8000/api/products/{product_id}/delete/"
+    - نستخدم الرقم ونحذف المنتج
+
+    # لعرض محتويات الرابط
+    get_responce = requests.delete(endpoint) - حذف المنتج 
+
+    print(get_responce.status_code, get_responce.status_code==204) 
+    - لعرض هل الكود نجح ام لا مع رقم الصفحه 
