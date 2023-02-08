@@ -231,3 +231,37 @@ if product_id: لو كتب رقم
 
     print(get_responce.status_code, get_responce.status_code==204) 
     - لعرض هل الكود نجح ام لا مع رقم الصفحه 
+
+-- in views.py 
+	- from rest_framework import generics, mixins -- خليط لدمج اومر الاريست في دالة واحده
+	class ProductMixinView(
+		mixins.CreateModelMixin,          						   -- انشاء منتج
+		mixins.ListModelMixin,                                     -- عرض جميع المنتجات
+		mixins.RetrieveModelMixin,                                 -- لعرض تفاصيل المنتج
+		generics.GenericAPIView                                    -- يستخدم مع المكسن لاضاغة اكثر من فئه
+		):
+		
+		queryset = Product.objects.all()
+		serializer_class = ProductSerializers
+		lookup_field = 'pk'
+
+		def get(self, request, *args, **kwargs): #Http ->> get     -- استخدام طريقة جيت
+			pk = kwargs.get("pk")                                  -- جلب الرقم
+			if pk is not None:                                     -- لو الرقم موجود
+				return self.retrieve(request, *args, **kwargs)     -- لعرض تفاصيل المنتج الواحد
+			return self.list(request, *args, **kwargs)             -- لعرض قائمة المنتجات
+		def post(self, request, *args, **kwargs): #Http ->> post   -- استخدام طريقة بوست
+			return self.create(request, *args, **kwargs)           -- انشاء منتج
+		def perform_create(self, serializer):                      -- يمكن استخدام البرفورم الخاصة بالاانشاء
+			#print(serializer.validated_data)
+			title = serializer.validated_data.get('title')
+			content = serializer.validated_data.get('content')
+			if content is None:
+				content = title
+			serializer.save(content=content)
+	product_mixin_view = ProductMixinView.as_view()
+
+in urls.py
+	path('', views.product_mixin_view),                            -- لعرض او انشاء منتج بالجيت للعرض او البوست للانشاء 
+	path('<int:pk>/', views.product_mixin_view),                   -- لعرض تفاصيل منتج واحد من نوع الجيت
+	
