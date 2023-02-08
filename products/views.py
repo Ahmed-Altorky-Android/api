@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from rest_framework import generics
+from rest_framework import generics, mixins
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.shortcuts import get_object_or_404
@@ -54,6 +54,16 @@ class ProductDestroyAPIView(generics.DestroyAPIView):
 
 product_destroy_view = ProductDestroyAPIView.as_view()
 
+
+class ProductMixinView(
+   mixins.ListModelMixin,
+   generics.GenericAPIView):
+  
+   queryset = Product.objects.all()
+   serializer_class = ProductSerializers
+
+   def get(self, request, *args, **kwargs): #Http ->> get
+      return self.list(request, *args, **kwargs)
 
 """
 class ProductListAPIView(generics.ListAPIView):
