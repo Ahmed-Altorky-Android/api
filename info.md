@@ -265,3 +265,13 @@ in urls.py
 	path('', views.product_mixin_view),                            -- لعرض او انشاء منتج بالجيت للعرض او البوست للانشاء 
 	path('<int:pk>/', views.product_mixin_view),                   -- لعرض تفاصيل منتج واحد من نوع الجيت
 	
+
+-- in views.py 
+	from rest_framework import generics, mixins, permissions, authentication
+	-- in class ProductListCreateAPIView
+		permission_classes = [permissions.IsAuthenticated] #--> authenticated all -- لطلب تصريح في كل الصفحات
+		authentication_classes = [authentication.SessionAuthentication] -- مصادقه في الخلفيه
+		permission_classes = [permissions.IsAuthenticatedOrReadOnly] #--> التصريح في صفحات البوست فقط  
+-- in urls.py
+	path('', views.product_list_create_view),
+	path('<int:pk>/', views.product_list_create_view),
