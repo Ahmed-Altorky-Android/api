@@ -275,3 +275,54 @@ in urls.py
 -- in urls.py
 	path('', views.product_list_create_view),
 	path('<int:pk>/', views.product_list_create_view),
+
+---------------------------------------------
+
+-- in settings.py installation app
+	'rest_framework.authtoken',        -- تثبيت التوكن
+
+-- in apiapp/urls.py
+	from rest_framework.authtoken.views import obtain_auth_token
+	path('auth/', obtain_auth_token),   -- رابط لجلب التوكن
+
+-- in apiapp/authentication.py  -- ملف جديد
+	from rest_framework.authentication import TokenAuthentication as BaseTokenAuth
+	class TokenAuthentication(BaseTokenAuth):   -- استخدام التوكن
+		keyword = 'Token'
+
+-- in products/views.py 
+	from apiapp.authentication import TokenAuthentication -- اضافة دالة التوكن من التطبيق
+	authentication_classes = [
+      authentication.SessionAuthentication,
+      TokenAuthentication                                 -- استخدامها
+   ]
+
+-- in py_clinte/list.py
+	import requests
+	from getpass import getpass                           -- جلب الباسورد
+
+	auth_endpoint = "http://localhost:8000/api/auth/"     -- رابط جلب التوكن
+	username = input("What is your username?\n")          -- طلب اسم الحساب
+	password = getpass("What is your password?\n")        -- طلب باسورد الحساب
+
+	auth_response = requests.post(auth_endpoint, json={'username': username, 'password': password}) 
+	-- استخدام الرابط مع جيسون وتعريف الاسم والباسورد بالمتغيرات
+	print(auth_response.json())
+
+	if auth_response.status_code == 200:                   -- لو البيانات صحيحه
+		token = auth_response.json()['token']
+		headers = {
+			"Authorization": f"Token {token}"              -- كائن به محتوي
+		}
+		# use this page in product/views.py
+		endpoint = "http://127.0.0.1:8000/api/products/"
+
+		# لعرض محتويات الرابط
+		get_responce = requests.get(endpoint, headers=headers)
+		-- سوف يعرض الليست اذا تم تسجيل الدخول
+		print(get_responce.json())
+
+-- in py_clint/create.py
+	headers = {'Authorization': 'Token 1fd234eec510739fd54162c202e1326f00faa670'}
+	-- استخدام الهيدر لاضافة التوكن ويجب ان يكون التوكن تم انشائه
+	get_responce = requests.post(endpoint, json=data, headers=headers) -- استخدام الهيدر

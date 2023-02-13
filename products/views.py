@@ -5,14 +5,20 @@ from rest_framework.decorators import api_view
 from django.shortcuts import get_object_or_404
 from .models import Product
 from .serializers import ProductSerializers
+from apiapp.authentication import TokenAuthentication
+
 # Create your views here.
 # CreateAPIView >> make views in data 
 class ProductListCreateAPIView(generics.ListCreateAPIView):
    queryset = Product.objects.all()
    serializer_class = ProductSerializers
    #permission_classes = [permissions.IsAuthenticated] #--> authenticated all
-   authentication_classes = [authentication.SessionAuthentication]
-   permission_classes = [permissions.IsAuthenticatedOrReadOnly] #--> authenticated post not get
+   authentication_classes = [
+      authentication.SessionAuthentication,
+      TokenAuthentication
+   ]
+   # permission_classes = [permissions.IsAuthenticatedOrReadOnly] #--> authenticated post not get
+   permission_classes = [permissions.DjangoModelPermissions] #
 
    def perform_create(self, serializer):
       #print(serializer.validated_data)
