@@ -1,24 +1,30 @@
 from django.shortcuts import render
-from rest_framework import generics, mixins, permissions, authentication
+from rest_framework import generics, mixins 
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.shortcuts import get_object_or_404
 from .models import Product
 from .serializers import ProductSerializers
-from apiapp.authentication import TokenAuthentication
+from apiapp.mixins import EditPermissionMixin
+
 
 # Create your views here.
 # CreateAPIView >> make views in data 
-class ProductListCreateAPIView(generics.ListCreateAPIView):
+class ProductListCreateAPIView(
+   EditPermissionMixin,
+   generics.ListCreateAPIView):
+
    queryset = Product.objects.all()
    serializer_class = ProductSerializers
    #permission_classes = [permissions.IsAuthenticated] #--> authenticated all
-   authentication_classes = [
-      authentication.SessionAuthentication,
-      TokenAuthentication
-   ]
+   # authentication_classes = [
+   #    authentication.SessionAuthentication,
+   #    TokenAuthentication
+   # ]
+   
    # permission_classes = [permissions.IsAuthenticatedOrReadOnly] #--> authenticated post not get
-   permission_classes = [permissions.DjangoModelPermissions] #
+   # permission_classes = [permissions.DjangoModelPermissions] #
+   # permission_classes = [permissions.IsAdminUser] #
 
    def perform_create(self, serializer):
       #print(serializer.validated_data)
@@ -30,7 +36,7 @@ class ProductListCreateAPIView(generics.ListCreateAPIView):
 
 product_list_create_view = ProductListCreateAPIView.as_view()
 
-class ProductDetailAPIView(generics.RetrieveAPIView):
+class ProductDetailAPIView(EditPermissionMixin,generics.RetrieveAPIView):
    # queryset and serializer_class is important value
    queryset = Product.objects.all()
    serializer_class = ProductSerializers
@@ -38,7 +44,7 @@ class ProductDetailAPIView(generics.RetrieveAPIView):
 product_detail_view = ProductDetailAPIView.as_view()
 
 
-class ProductUpdateAPIView(generics.UpdateAPIView):
+class ProductUpdateAPIView(EditPermissionMixin,generics.UpdateAPIView):
    # queryset and serializer_class is important value
    queryset = Product.objects.all()
    serializer_class = ProductSerializers
@@ -52,7 +58,7 @@ class ProductUpdateAPIView(generics.UpdateAPIView):
 product_update_view = ProductUpdateAPIView.as_view()
 
 
-class ProductDestroyAPIView(generics.DestroyAPIView):
+class ProductDestroyAPIView(EditPermissionMixin,generics.DestroyAPIView):
    # queryset and serializer_class is important value
    queryset = Product.objects.all()
    serializer_class = ProductSerializers

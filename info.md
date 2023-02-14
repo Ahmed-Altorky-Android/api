@@ -326,3 +326,50 @@ in urls.py
 	headers = {'Authorization': 'Token 1fd234eec510739fd54162c202e1326f00faa670'}
 	-- استخدام الهيدر لاضافة التوكن ويجب ان يكون التوكن تم انشائه
 	get_responce = requests.post(endpoint, json=data, headers=headers) -- استخدام الهيدر
+
+
+-- in settings.py end
+	REST_FRAMEWORK = {
+		"DEFAULT_AUTHENTICATION_CLASSES":[         -- انشاء قيمة افتراضيه للمصادقات
+			'rest_framework.authentication.SessionAuthentication',
+			'rest_framework.authentication.TokenAuthentication'
+			-- هذه الاشياء تكون موجوده افتراضيا في الدوال
+		],
+		"DEFAULT_PERMISSION_CLASSES":[             -- انشاء قيمه افتراضية للاذونات
+			'rest_framework.permissions.IsAuthenticatedOrReadOnly'
+		]
+	}
+
+-- in apiapp create file permissions.py
+	from rest_framework import permissions
+
+	class IsEditPermissions(permissions.DjangoModelPermissions):
+	 -- مكتبه خاصه بالمصادقه مع المودل وتختص بالعرض والتعديل والاضافه والحذف
+		perms_map = { 
+		'GET': ['%(app_label)s.view_%(model_name)s'], 
+		'OPTIONS': [], 
+		'HEAD': [], 
+		'POST': ['%(app_label)s.add_%(model_name)s'], 
+		'PUT': ['%(app_label)s.change_%(model_name)s'], 
+		'PATCH': ['%(app_label)s.change_%(model_name)s'], 
+		'DELETE': ['%(app_label)s.delete_%(model_name)s'], 
+		} 
+		-- لتعريف الادوات للمكتبه
+
+-- in apiapp create file mixins.py
+	from rest_framework import permissions
+	from .permissions import IsEditPermissions  -- اضافة الدالة التي قمنا بانشائها
+
+	class EditPermissionMixin():
+		permission_classes = [permissions.IsAdminUser, IsEditPermissions]
+		-- اضافة خليط من الدلة اللتي انشاناها مسبقا ودالة اخري وهي 
+		-- IsAdminUser اذا كان المستخد قيد التسجيل وله الصلاحيات سوف يشتغل
+
+-- in views.py
+	from apiapp.mixins import EditPermissionMixin -- دالة الخليط اللتي انشاناها
+test > 
+	class ProductListCreateAPIView(
+	EditPermissionMixin,                          -- يتم استخدامها بهذه الطريقه مع الدوال
+	generics.ListCreateAPIView):
+	-- وبهذا اذا تم منع الاذونات للجروب وتمت اضافه الجروب لليوزر ياخذ
+	 صلاحيات الجروب تي وان كان ليس لديه صلاحيات
