@@ -373,3 +373,46 @@ test >
 	generics.ListCreateAPIView):
 	-- وبهذا اذا تم منع الاذونات للجروب وتمت اضافه الجروب لليوزر ياخذ
 	 صلاحيات الجروب تي وان كان ليس لديه صلاحيات
+
+-- in product make file > viewsets.py
+	from rest_framework import mixins,viewsets              -- لعرض جميع الصفحات واستخدامها مع اعادة التوجيه
+	from .models import Product                      -- يتم اضافة دالة المودل
+	from .serializers import ProductSerializers      -- Serializers يتم اضافة دلة 
+
+	class ProductViewSet(viewsets.ModelViewSet):     -- لاستخدام مودل منشئه مسبقا
+		queryset = Product.objects.all()
+		serializer_class = ProductSerializers
+		lookup_field = 'pk' #defualt                 -- يستخدم المفتاح الفريد لعرض منتج معين والتعديل عليه
+	
+	
+	class ProductGenericViewSet(                     -- لتحديد المعروضات
+			mixins.ListModelMixin,                   -- لعرض الليست
+			mixins.RetrieveModelMixin,               -- لعرض التفاصيل
+			viewsets.GenericViewSet,):
+		'''
+		Get -> list
+		Get -> ditail from pk in urls                -- يستخدم الجيت فقط
+		'''
+		queryset = Product.objects.all()
+		serializer_class = ProductSerializers
+		-- يتم تغيير اسم الدلة في ملف اعادة التوجيه
+
+-- in admin make file routers.py
+	from rest_framework.routers import DefaultRouter -- لاعادة التوجيه
+
+	from products.viewsets import ProductViewSet     -- ProductViewSet اضافة دالة 
+	'''
+		Get -> list                                  -- لعرض جميع المنتجات
+		Get -> ditail from pk in urls                -- لاختيار منج معين بالمفتاح الفريد
+		Post -> create New product                   -- لانشاء منج
+		Post -> update product                       -- للتعديل علي منتج
+		delete -> destroy product                    -- لحذف منتج
+	'''
+	router = DefaultRouter()                         -- استخدام اعادة التوجيه
+	router.register('products', ProductViewSet, basename='products')
+	--				 اسم العرض        ودالة العرض    ورابط العرض 
+	urlpatterns = router.urls  
+
+-- in admin/urls.py\
+	-- https://localhost:port/api/v2/product-abc/
+	path('api/v2/', include('admin.routers')),     -- يستخدم هذا الرابط للوصول الي الصفحه مع اضافة مسار الراوتر
