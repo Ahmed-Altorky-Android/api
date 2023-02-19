@@ -416,3 +416,43 @@ test >
 -- in admin/urls.py\
 	-- https://localhost:port/api/v2/product-abc/
 	path('api/v2/', include('admin.routers')),     -- يستخدم هذا الرابط للوصول الي الصفحه مع اضافة مسار الراوتر
+
+
+-- in serializers.py
+	from rest_framework.reverse import reverse         -- اضافة اعادة التوجيه
+	class ProductSerializers(serializers.ModelSerializer):
+		# edit_url = serializers.SerializerMethodField(read_only=True)  -- لاضافة فيلد معينه
+		(1)-edit_url = serializers.HyperlinkedIdentityField(view_name='product-edit', lookup_field='pk')
+		-- هنا اضفنا اسم ثم اضفنا اداة ربط برابط معين من خلال اسمه في ملف الروبط
+		-- وهنا هذا لانشاء رابط وصول لصفحة التعديل علي المنتج
+		url = serializers.HyperlinkedIdentityField(view_name='product-detail', lookup_field='pk')
+		-- هنا اضفنا اسم ثم اضفنا اداة ربط برابط معين من خلال اسمه في ملف الروبط
+		-- وهنا هذا لانشاء رابط وصول لصفحة عرض معلومات المنتج
+		class Meta:
+			model = Product
+				fields = [
+					'url', -- هذا الاسم الموجود في الاعلي لعرض المعلومات
+					'edit_url',  -- وهذا للتعديل علي المنتج
+					'id',
+					'title',
+					'content',
+					'price',
+					'get_descount',
+				]
+		def validate_title(self, value):   -- للتاكد من العنوان
+			qs = Product.objects.filter(title__exact=value)  -- لفلترة العنوان
+			if qs.exists():  -- لو العنوان موجود
+				raise serializers.ValidationError(f"{value} is alredy product name")   
+			return value	
+		# def get_edit_url(self, obj):
+		#         request = self.context.get('request') #self.request
+		#         if request is None:
+		#              return None
+		#         return reverse("product-edit", kwargs={'pk':obj.pk}, request=request)
+		-- (1)هذا كله يستخدم بدل هذا 
+
+-- in urls.py
+	path('<int:pk>/update/', views.product_update_view, name='product-edit'), -- نضف الاسم
+    path('<int:pk>/', views.product_detail_view, name='product-detail'),
+
+

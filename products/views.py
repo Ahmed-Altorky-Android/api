@@ -36,7 +36,7 @@ class ProductListCreateAPIView(
 
 product_list_create_view = ProductListCreateAPIView.as_view()
 
-class ProductDetailAPIView(EditPermissionMixin,generics.RetrieveAPIView):
+class ProductDetailAPIView(EditPermissionMixin, generics.RetrieveAPIView):
    # queryset and serializer_class is important value
    queryset = Product.objects.all()
    serializer_class = ProductSerializers
