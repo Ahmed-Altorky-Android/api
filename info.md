@@ -444,6 +444,7 @@ test >
 			if qs.exists():  -- لو العنوان موجود
 				raise serializers.ValidationError(f"{value} is alredy product name")   
 			return value	
+		-------------------------------------
 		# def get_edit_url(self, obj):
 		#         request = self.context.get('request') #self.request
 		#         if request is None:
@@ -456,3 +457,22 @@ test >
     path('<int:pk>/', views.product_detail_view, name='product-detail'),
 
 
+-- in product/models.py
+	from django.conf import settings   -- اضافة الاعدادات
+	User = settings.AUTH_USER_MODEL    -- لجلب اليوزر من الاعدادات
+	class Product(models.Model):
+		user = models.ForeignKey(User, default=1, null=True, on_delete=models.SET_NULL)
+		-- لربط اليوزر بالمودل مع قيمه فارغه
+
+-- in apiapp makefile serializers.py
+	from rest_framework import serializers
+	class UserPablicSerializers(serializers.Serializer):
+		username = serializers.CharField(read_only=True) -- لتعريف اليوزر بانه حروف مع قرئه كل شئ
+		id = serializers.IntegerField(read_only=True)    -- لتعريف رقم اليوزر
+
+-- in product/serializers.py
+from apiapp.serializers import UserPablicSerializers
+class ProductSerializers(serializers.ModelSerializer):
+    user = UserPablicSerializers(read_only=True)  -- لربط اليوزر الاصلي مع اليوزر اللذي انشءناه
+	fields = [
+        'user', -- لاظهار اسم اليوزر والايدي الخاص به

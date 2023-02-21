@@ -2,9 +2,10 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 from .models import Product
 from .validators import validate_title
-
+from apiapp.serializers import UserPablicSerializers
 
 class ProductSerializers(serializers.ModelSerializer):
+    user = UserPablicSerializers(read_only=True)
     # edit_url = serializers.SerializerMethodField(read_only=True)
     edit_url = serializers.HyperlinkedIdentityField(view_name='product-edit', lookup_field='pk')
     url = serializers.HyperlinkedIdentityField(view_name='product-detail', lookup_field='pk')
@@ -12,7 +13,7 @@ class ProductSerializers(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = [
-             
+             'user', # user_id
              'url',
 			'edit_url',    
 			'id',
