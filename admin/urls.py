@@ -20,6 +20,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('api/', include('apiapp.urls')),
+    path('api/search/', include('search.urls')),
     path('api/products/', include('products.urls')),
     path('api/v2/', include('admin.routers')),
 ]

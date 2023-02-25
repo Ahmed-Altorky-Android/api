@@ -476,3 +476,14 @@ class ProductSerializers(serializers.ModelSerializer):
     user = UserPablicSerializers(read_only=True)  -- لربط اليوزر الاصلي مع اليوزر اللذي انشءناه
 	fields = [
         'user', -- لاظهار اسم اليوزر والايدي الخاص به
+
+
+-- in settings.py end
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES":[
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly'
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 10
+	-- تستخدم لترقيم الصفحات ويكون في صفحة العرض تغيير بين الصفحات بالتالي والسابق
+}
