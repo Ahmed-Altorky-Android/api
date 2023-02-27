@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from rest_framework.reverse import reverse
 from .models import Product
-from .validators import validate_title
 from apiapp.serializers import UserPablicSerializers
 
 class ProductSerializers(serializers.ModelSerializer):

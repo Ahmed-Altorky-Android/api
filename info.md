@@ -487,3 +487,29 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10
 	-- تستخدم لترقيم الصفحات ويكون في صفحة العرض تغيير بين الصفحات بالتالي والسابق
 }
+
+
+-- in terminal make app search
+	python manage.py startapp srarch
+-- in search make file urls.py
+	from django.urls import path
+	from . import views
+	urlpatterns = [
+		path('',views.SearchListView.as_view(), name='test')
+	]
+-- in admin/urls.py
+	path('api/search/', include('search.urls')),
+
+-- in search make file clint.py
+-- install algolia_search[
+
+	-- in termail > pip install algoliasearch_django
+	-- in settings.py installedapps
+		'algoliasearch_django',
+	ALGOLIA = {
+		'APPLICATION_ID': 'YourApplicationID',
+		'API_KEY': 'YourWriteAPIKey',
+		'INDEX_PREFIX':'name admin'
+	}
+]
+-- تستخدم البحث في البحث في الصفحات ولها موقع الكتروني تسجل فيه وتضع البيانات في الاعدادات
